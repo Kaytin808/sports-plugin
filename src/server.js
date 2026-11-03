@@ -162,6 +162,9 @@ app.get([
   '/catalog/other/sports-hub.json',
   '/catalog/channel/sports-hub.json',
   '/catalog/series/sports-hub.json',
+  '/catalog/other/sports-hub-14.json',
+  '/catalog/channel/sports-hub-14.json',
+  '/catalog/series/sports-hub-14.json',
   `/catalog/other/sports-hub-${DATA_VERSION}.json`,
   `/catalog/channel/sports-hub-${DATA_VERSION}.json`,
   `/catalog/series/sports-hub-${DATA_VERSION}.json`
