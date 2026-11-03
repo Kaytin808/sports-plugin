@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizeUfcBouts, normalizeF1Sessions, normalizeTennisMatches } = require('../src/sports-data');
+const { normalizeUfcBouts, normalizeF1Sessions, normalizeTennisMatches, dateKeysBetween } = require('../src/sports-data');
 const { eventScheduleLabel } = require('../src/art');
 
 test('UFC cards expand a fight card into fighter matchups with stable artwork', () => {
@@ -80,4 +80,15 @@ test('all-day tournament cards show source dates without a fake timezone-shifted
     date: '2026-08-20T04:00:00Z',
     endDate: '2026-08-23T04:00:00Z'
   }, 'America/Phoenix'), 'Thu, Aug 20 – Sun, Aug 23');
+});
+
+test('schedule ranges expand into individual ESPN date keys across month boundaries', () => {
+  assert.deepEqual(dateKeysBetween('20261030', '20261102'), [
+    '20261030',
+    '20261031',
+    '20261101',
+    '20261102'
+  ]);
+  assert.deepEqual(dateKeysBetween('20261102'), ['20261102']);
+  assert.deepEqual(dateKeysBetween('bad-date', '20261102'), []);
 });

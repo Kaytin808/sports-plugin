@@ -23,7 +23,7 @@ const ART_VERSION = '11';
 // Nuvio can retain catalog/meta responses even when they are served with
 // no-store. Change this namespace whenever the shape or calendar semantics of
 // scheduled items changes so clients cannot reuse stale game metadata.
-const DATA_VERSION = '14';
+const DATA_VERSION = '15';
 const accessPrefix = config.accessToken ? `/${config.accessToken}` : '';
 const accessProfiles = [
   config.accessToken && { prefix: `/${config.accessToken}`, profile: 'default' },
@@ -143,7 +143,7 @@ app.get('/manifest.json', (req, res) => {
   };
   sendJson(res, {
     id: manifestIdentity.id,
-    version: '2.2.2',
+    version: '2.2.3',
     name: manifestIdentity.name,
     description: 'A clean sports hub with rolling seven-day schedules and private Xtream playback.',
     resources: ['catalog', 'meta', 'stream'],

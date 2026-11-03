@@ -1,6 +1,6 @@
 {
   "name": "dugout-live-addon",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "private": true,
   "description": "MLB-first Nuvio/Stremio catalog backed by a private Xtream subscription",
   "main": "src/server.js",

@@ -9,6 +9,24 @@ function addDays(date, days) {
   return new Date(date.getTime() + days * 86400000);
 }
 
+function dateKeysBetween(startDate, endDate = startDate) {
+  const parseDateKey = (value) => {
+    const match = /^(\d{4})(\d{2})(\d{2})$/.exec(String(value));
+    if (!match) return null;
+    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+  const start = parseDateKey(startDate);
+  const end = parseDateKey(endDate);
+  if (!start || !end || start > end) return [];
+
+  const keys = [];
+  for (let cursor = start; cursor <= end; cursor = addDays(cursor, 1)) {
+    keys.push(cursor.toISOString().slice(0, 10).replaceAll('-', ''));
+  }
+  return keys;
+}
+
 function athleteImage(athlete, league) {
   const supplied = typeof athlete?.headshot === 'string'
     ? athlete.headshot
@@ -198,7 +216,7 @@ async function requestLeague(leagueId, startDate, endDate = startDate) {
   const league = LEAGUES[leagueId];
   if (!league) return [];
   const expression = endDate === startDate ? startDate : `${startDate}-${endDate}`;
-  const key = `${leagueId}:${expression}`;
+  const key = `range:${leagueId}:${expression}`;
   const cached = cache.get(key);
   if (cached) return cached;
 
@@ -237,17 +255,37 @@ async function requestLeague(leagueId, startDate, endDate = startDate) {
     return cache.set(key, expanded.flat());
   }
 
-  const url = new URL(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/scoreboard`);
-  url.searchParams.set('dates', expression);
-  url.searchParams.set('limit', '1000');
-  for (const [name, value] of Object.entries(league.params || {})) url.searchParams.set(name, value);
-  const response = await fetch(url, {
-    headers: { accept: 'application/json', 'user-agent': 'DugoutLive/1.0' },
-    signal: AbortSignal.timeout(12000)
-  });
-  if (!response.ok) throw new Error(`${league.name} schedule returned HTTP ${response.status}`);
-  const json = await response.json();
-  return cache.set(key, (json.events || []).flatMap((event) => normalizeGeneralEvents(event, league)));
+  // ESPN's scoreboard endpoint accepts a single day, month, or year, but many
+  // team-sport feeds return an empty list for dashed ranges such as
+  // 20261102-20261108. Fetch the requested days individually so every league
+  // uses the same reliable rolling-window behavior. Day-level caching keeps
+  // repeated folder opens and longer lookups inexpensive.
+  const dateKeys = dateKeysBetween(startDate, endDate);
+  if (!dateKeys.length) return cache.set(key, []);
+  const normalizedDays = [];
+  const batchSize = 7;
+  for (let offset = 0; offset < dateKeys.length; offset += batchSize) {
+    const batch = await Promise.all(dateKeys.slice(offset, offset + batchSize).map(async (dateKey) => {
+      const dayCacheKey = `day:${leagueId}:${dateKey}`;
+      const cachedDay = cache.get(dayCacheKey);
+      if (cachedDay) return cachedDay;
+
+      const url = new URL(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/scoreboard`);
+      url.searchParams.set('dates', dateKey);
+      url.searchParams.set('limit', '1000');
+      for (const [name, value] of Object.entries(league.params || {})) url.searchParams.set(name, value);
+      const response = await fetch(url, {
+        headers: { accept: 'application/json', 'user-agent': 'DugoutLive/1.0' },
+        signal: AbortSignal.timeout(12000)
+      });
+      if (!response.ok) throw new Error(`${league.name} schedule returned HTTP ${response.status}`);
+      const json = await response.json();
+      return cache.set(dayCacheKey, (json.events || []).flatMap((event) => normalizeGeneralEvents(event, league)));
+    }));
+    normalizedDays.push(...batch);
+  }
+  const byId = new Map(normalizedDays.flat().map((event) => [event.id, event]));
+  return cache.set(key, [...byId.values()]);
 }
 
 async function getRemainingLeagueSchedule(leagueId, timeZone = config.timeZone) {
@@ -301,6 +339,7 @@ module.exports = {
   normalizeUfcBouts,
   normalizeF1Sessions,
   normalizeTennisMatches,
+  dateKeysBetween,
   requestLeague,
   getRemainingLeagueSchedule,
   getLeagueScheduleWindow,
