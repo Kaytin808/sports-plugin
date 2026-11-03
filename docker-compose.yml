@@ -1,0 +1,9 @@
+services:
+  dugout-live:
+    build: .
+    container_name: dugout-live
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "2323:2323"

@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: dugout-live-sports-hub
+    runtime: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: TIME_ZONE
+        value: America/Phoenix
+      - key: ACCESS_TOKEN
+        sync: false
+      - key: XTREAM_BASE_URL
+        sync: false
+      - key: XTREAM_USERNAME
+        sync: false
+      - key: XTREAM_PASSWORD
+        sync: false
+      - key: XTREAM_OUTPUT_EXTENSION
+        value: m3u8
+      - key: SCHEDULE_CACHE_SECONDS
+        value: 300
+      - key: XTREAM_CACHE_SECONDS
+        value: 300
+      - key: STREAM_PROBE_TIMEOUT_MS
+        value: 8000
+      - key: STREAM_PROBE_LIMIT
+        value: 6
+      - key: STREAM_PROBE_CONCURRENCY
+        value: 3
+      - key: STREAM_PROBE_CACHE_SECONDS
+        value: 60

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dugout Live • MLB</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f4f7fb;--muted:#94a3b8;--panel:rgba(10,18,30,.82);--line:rgba(255,255,255,.1);--red:#df3349;--blue:#1677ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#03070c;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+    body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 82% 8%,rgba(22,119,255,.27),transparent 35%),radial-gradient(circle at 12% 88%,rgba(223,51,73,.16),transparent 32%),linear-gradient(125deg,#020407,#071220 56%,#03060a);z-index:-2}
+    body:after{content:"";position:fixed;width:900px;height:900px;border:2px solid rgba(255,255,255,.05);border-radius:50%;right:-240px;top:-330px;box-shadow:0 0 0 140px rgba(255,255,255,.018),0 0 0 280px rgba(255,255,255,.012);z-index:-1}
+    header{display:flex;justify-content:space-between;align-items:center;padding:30px clamp(24px,5vw,78px);border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
+    .brand{display:flex;align-items:center;gap:14px;font-weight:900;letter-spacing:-.03em;font-size:22px}.ball{width:42px;height:42px;border-radius:50%;background:#f6f0e4;position:relative;box-shadow:0 0 0 5px rgba(255,255,255,.08)}.ball:after,.ball:before{content:"";position:absolute;top:7px;bottom:7px;width:15px;border:2px dashed var(--red);border-top:0;border-bottom:0;border-radius:50%}.ball:before{left:7px}.ball:after{right:7px}.brand small{font-size:11px;letter-spacing:.16em;color:#8fa4bd;display:block;margin-top:2px}
+    .status{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 16px currentColor}.dot.ok{background:#3ddc97}.dot.bad{background:#fb7185}
+    main{padding:54px clamp(24px,5vw,78px) 72px}.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(310px,.6fr);gap:46px;align-items:end}.eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#7fb2ff;font-weight:800}.hero h1{font-size:clamp(44px,7vw,92px);line-height:.92;letter-spacing:-.065em;margin:14px 0 20px;max-width:920px}.hero h1 span{color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.52)}.lead{max-width:680px;color:#a9b6c8;font-size:17px;line-height:1.65}.setup{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.32)}.setup h2{margin:0 0 8px;font-size:18px}.setup p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5}.manifest{display:flex;gap:9px}.manifest input{min-width:0;flex:1;border:1px solid var(--line);background:#03070d;color:#cbd5e1;border-radius:11px;padding:12px;font:inherit;font-size:12px}.manifest button{border:0;border-radius:11px;padding:0 16px;background:#fff;color:#05070a;font-weight:800;cursor:pointer}.hint{margin-top:12px!important;font-size:11px!important}.section-title{display:flex;justify-content:space-between;align-items:end;margin-top:58px;margin-bottom:20px}.section-title h2{margin:0;font-size:27px;letter-spacing:-.03em}.section-title span{color:var(--muted);font-size:13px}.rail{display:flex;gap:18px;overflow-x:auto;padding:5px 2px 24px;scroll-snap-type:x proximity}.card{flex:0 0 220px;scroll-snap-align:start}.poster{aspect-ratio:2/3;width:100%;object-fit:cover;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:#09101a;box-shadow:0 18px 38px rgba(0,0,0,.32);transition:.22s transform,.22s box-shadow}.card:hover .poster{transform:translateY(-7px) scale(1.015);box-shadow:0 24px 56px rgba(0,0,0,.5)}.card h3{font-size:14px;margin:12px 3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card p{font-size:12px;color:var(--muted);margin:0 3px}.folder-card{flex-basis:345px}.folder-card .poster{aspect-ratio:16/9}.folder-card h3{font-size:16px}.schedule-card .poster{border:2px solid rgba(255,255,255,.7)}.empty{padding:35px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.upcoming{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:5px}.upcoming div{background:rgba(7,15,26,.72);border:1px solid var(--line);border-radius:13px;padding:14px 16px;color:#bdc8d6;font-size:13px}.footer{margin-top:55px;border-top:1px solid var(--line);padding-top:22px;color:#6f8094;font-size:12px;line-height:1.6}
+    @media(max-width:850px){.hero{grid-template-columns:1fr}.hero h1{font-size:56px}.setup{max-width:560px}.upcoming{grid-template-columns:1fr}header{padding:22px 24px}.status span:last-child{display:none}.card{flex-basis:185px}}
+  </style>
+</head>
+<body>
+  <header><div class="brand"><div class="ball"></div><div>DUGOUT LIVE<small>PRIVATE SPORTS HUB</small></div></div><div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Checking services…</span></div></header>
+  <main>
+    <section class="hero">
+      <div><div class="eyebrow">Nuvio / Stremio add-on</div><h1>Every sport.<br><span>One clean hub.</span></h1><p class="lead">Baseball, football, basketball, hockey, soccer, golf, combat, motorsport, and tennis—organized into wide folders with complete schedules and your private Xtream channels.</p></div>
+      <aside class="setup"><h2>Add-on manifest</h2><p>Start this server, then add the URL below as a custom add-on in Nuvio or Stremio.</p><div class="manifest"><input id="manifestUrl" readonly><button id="copyButton">Copy</button></div><p class="hint" id="xtreamHint">Loading configuration status…</p></aside>
+    </section>
+    <div class="section-title"><h2>Sports folders</h2><span>Open a folder for its full schedule</span></div>
+    <section class="rail" id="folderRail"><div class="empty">Loading sports folders…</div></section>
+    <div class="section-title"><h2>Today’s baseball</h2><span id="dateLabel"></span></div>
+    <section class="rail" id="gameRail"><div class="empty">Loading the MLB schedule…</div></section>
+    <div class="section-title"><h2>Coming up</h2><span>Next eight games</span></div>
+    <section class="upcoming" id="upcoming"><div>Loading upcoming schedule…</div></section>
+    <div class="footer">Dugout Live supplies metadata and artwork only. Playback results come exclusively from your own Xtream subscription. Keep the server and manifest URL private because resolved playback URLs contain your provider credentials.</div>
+  </main>
+  <script>
+    const manifestUrl = `${location.origin}/manifest.json`;
+    document.querySelector('#manifestUrl').value = manifestUrl;
+    document.querySelector('#copyButton').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(manifestUrl);
+      document.querySelector('#copyButton').textContent = 'Copied';
+      setTimeout(() => document.querySelector('#copyButton').textContent = 'Copy', 1400);
+    });
+
+    const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+
+    Promise.all([
+      fetch('/api/preview').then((response) => response.json()),
+      fetch('/api/status').then((response) => response.json())
+    ]).then(([preview, status]) => {
+      document.querySelector('#dateLabel').textContent = `${preview.date} • ${preview.timeZone}`;
+      document.querySelector('#folderRail').innerHTML = preview.folders.map((folder) => `<article class="card folder-card"><img class="poster" src="${folder.art}" alt="${escapeHtml(folder.name)} folder"><h3>${escapeHtml(folder.name)}</h3><p>${escapeHtml(folder.subtitle)}</p></article>`).join('');
+      const cards = preview.games.map((game) => `<article class="card"><img class="poster" src="${game.poster}" alt="${escapeHtml(game.name)} poster"><h3>${escapeHtml(game.name)}</h3><p>${escapeHtml(game.time)} • ${escapeHtml(game.status)}</p></article>`);
+      cards.push(`<article class="card schedule-card"><img class="poster" src="${preview.scheduleCard}" alt="Upcoming MLB schedule"><h3>Full Schedule</h3><p>Complete remaining season</p></article>`);
+      document.querySelector('#gameRail').innerHTML = cards.join('');
+      document.querySelector('#upcoming').innerHTML = preview.upcoming.length ? preview.upcoming.map((game) => `<div>${escapeHtml(game.label)}</div>`).join('') : '<div>No upcoming games were found.</div>';
+
+      const dot = document.querySelector('#statusDot');
+      const text = document.querySelector('#statusText');
+      const hint = document.querySelector('#xtreamHint');
+      if (status.xtream.connected) {
+        dot.className = 'dot ok';
+        text.textContent = 'Schedule + Xtream ready';
+        const categoryIds = Object.values(status.xtream.selectedByFolder || {}).flat();
+        const totalCategories = new Set(categoryIds).size;
+        hint.textContent = `${totalCategories} sport channel folders mapped. Credentials stay server-side.`;
+      } else if (status.xtream.configured) {
+        dot.className = 'dot bad';
+        text.textContent = 'Xtream connection failed';
+        hint.textContent = 'The schedule works, but the configured Xtream server could not be reached. Check .env.';
+      } else {
+        dot.className = 'dot';
+        text.textContent = 'Schedule ready • Xtream pending';
+        hint.textContent = 'Schedule preview is live. Copy .env.example to .env and add your Xtream URL, username, and password to enable playback.';
+      }
+    }).catch(() => {
+      document.querySelector('#statusDot').className = 'dot bad';
+      document.querySelector('#statusText').textContent = 'Schedule unavailable';
+      document.querySelector('#gameRail').innerHTML = '<div class="empty">The schedule service could not be reached. Try again shortly.</div>';
+    });
+  </script>
+</body>
+</html>
